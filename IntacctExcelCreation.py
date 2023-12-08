@@ -41,16 +41,19 @@ def working(client):
     sql = pd.read_sql_query( '''
         set nocount on 
         SELECT 
-            lastname + ', ' + firstname fullName
-            , replace(replace(clientName,'.',''),'/','') clientName
-            , [clientCode] 
+             lastname + ', ' + firstname fullName
+            , [ClientCode] 
+            , [ClientName]
+			, [Description]
+			, [Amounts]
+			, [EmployeeId]
             , [Period]
             , [Plan]
             , [Scenario]
             , [Provider Name]
             , [premium]
         FROM dbo.[BILLING_STEP_3]
-        where clientcode = ? and
+        where ClientCode = ? and
             case 
                 when [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
                 when [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
@@ -86,16 +89,17 @@ def working(client):
     df = df.sort_values(by=['fullName', 'Provider Name'])
     
     rows = df[df.columns[0]].count()
-    client = df["clientName"].max()
-    clientID = df["clientCode"].max()
+    client = df["ClientName"].max()
+    clientID = df["ClientCode"].max()
     employees = df['fullName'].count() 
 
     detail = df[['fullName', 'Period', 'premium', 'Provider Name', 'Plan']]
     detail.rename(columns={'fullName':'EE','premium':'Premium'},inplace=True)
 
-    sumByPlan = df.groupby(['Plan'],as_index=True).agg({'premium':'sum', 'fullName':'count'})
+    sumByPlan = df.groupby(['Description'],as_index=True).agg({'Amounts':'sum', 'EmployeeId':'count'})
     sumByPlan.reset_index(inplace=True)
-    sumByPlan.rename(columns={'fullName':'Employees','premium':'Amount'}, inplace=True)
+    sumByPlan.rename(columns={'EmployeeId':'Employees','Amounts':'Amount'}, inplace=True)
+    print(sumByPlan, "sum play testing")
 
     gb = df.groupby(['fullName']).sum()
     gb.reset_index(inplace=True) 
