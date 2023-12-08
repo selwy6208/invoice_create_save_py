@@ -139,7 +139,10 @@ def format_Detail(writer,detail, client, clientID):
         'total_row': True,
         'style': 'Table Style Medium 4'
     })
-    worksheet.insert_image('A1', 'C:\\Users\\andrea.rodriguez\\intacctlogo\\LBMC-EmpPartners-logo.png')
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_directory, 'assets', 'LBMC-EmpPartners-logo.png')
+
+    worksheet.insert_image('A1', image_path)    
     
     bold = workbook.add_format({'bold': True,'font':15})
     green = workbook.add_format({'bold': True,'font':15, 'color':'7da53d'})
@@ -171,7 +174,10 @@ def format_Summary(writer,sumByPlan, client, clientID):
         'total_row': True,
         'style': 'Table Style Medium 4'
     })
-    worksheet.insert_image('A1', 'C:\\Users\\andrea.rodriguez\\intacctlogo\\LBMC-EmpPartners-logo.png')
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_directory, 'assets', 'LBMC-EmpPartners-logo.png')
+
+    worksheet.insert_image('A1', image_path) 
     
     bold   = workbook.add_format({'bold': True,'font':15})
     green  = workbook.add_format({'bold': True,'font':15, 'color':'7da53d'})
@@ -202,7 +208,10 @@ def format_SummaryDetail(writer,piv, client, clientID):
         'total_row': True,
         'style': 'Table Style Medium 4'
     })
-    worksheet.insert_image('A1', 'C:\\Users\\andrea.rodriguez\\intacctlogo\\LBMC-EmpPartners-logo.png')
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(script_directory, 'assets', 'LBMC-EmpPartners-logo.png')
+
+    worksheet.insert_image('A1', image_path) 
     
     bold   = workbook.add_format({'bold': True,'font':15})
     green  = workbook.add_format({'bold': True,'font':15, 'color':'7da53d'})
