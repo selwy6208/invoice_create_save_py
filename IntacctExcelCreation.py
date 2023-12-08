@@ -27,13 +27,11 @@ print("Connection to SQL Server successful.")
 # Create a cursor for executing SQL queries
 cursor = conn.cursor()
 
-# Now you can use 'cursor' to execute SQL queries
-
 def get_clients():
     sql = """
-set nocount on 
-select distinct clientcode from dbo.[BILLING_STEP_3]
-order by 1 desc
+        set nocount on 
+        select distinct clientcode from dbo.[BILLING_STEP_3]
+        order by 1 desc
     """
     cursor.execute(sql)
     row = cursor.fetchall() 
@@ -41,49 +39,49 @@ order by 1 desc
 
 def working(client):
     sql = pd.read_sql_query( '''
-set nocount on 
-SELECT 
-	lastname + ', ' + firstname fullName
-    , replace(replace(clientName,'.',''),'/','') clientName
-    , [clientCode] 
-    , [Period]
-    , [Plan]
-    , [Scenario]
-    , [Provider Name]
-    , [premium]
-FROM dbo.[BILLING_STEP_3]
-where clientcode = ? and
-	case 
-        when [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
-        when [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
-        when [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
-		WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' THEN 'EP-BCBS-HEALTH'
-        when [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
-		WHEN [Provider Name] LIKE '%CIGNA%' THEN 'EP-CIGNA-VISION'
-        when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-        when [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
-		WHEN [PLAN] LIKE '%DENTAL%' THEN 'EP-CIGNA-DENTAL' 
-        when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-        when [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-		when [plan] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-        when [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
-		when [plan] like '%Colonial Critical Illness%' then 'EP-COLONIAL-CRITICAL'
-		when [Provider Name] like '%colonial life%' then 'EP-COLONIAL-CRITICAL'
-		when [plan] like '%Colonial Life Group Critical Care%'  then 'EP-COLONIAL-CRITICAL'
-        when [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
-		when [plan] like '%Colonial Accident Plan%' or [plan] like '%Colonial Life Group Accident%' then 'EP-COLONIAL-ACCIDENT'
-		when [plan] like '%Colonial Accident%' then 'EP-COLONIAL-ACCIDENT'
-        when [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
-        when [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
-        when [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
-        when [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
-        when [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
-		when [Provider Name] like '%lincoln%' then 'EP-LINCOLN-LIFE'
-        END IS NOT NULL
-    '''  , con=conn, params=client)
+        set nocount on 
+        SELECT 
+            lastname + ', ' + firstname fullName
+            , replace(replace(clientName,'.',''),'/','') clientName
+            , [clientCode] 
+            , [Period]
+            , [Plan]
+            , [Scenario]
+            , [Provider Name]
+            , [premium]
+        FROM dbo.[BILLING_STEP_3]
+        where clientcode = ? and
+            case 
+                when [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
+                when [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
+                when [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
+                WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' THEN 'EP-BCBS-HEALTH'
+                when [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
+                WHEN [Provider Name] LIKE '%CIGNA%' THEN 'EP-CIGNA-VISION'
+                when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
+                when [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
+                WHEN [PLAN] LIKE '%DENTAL%' THEN 'EP-CIGNA-DENTAL' 
+                when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
+                when [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
+                when [plan] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
+                when [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
+                when [plan] like '%Colonial Critical Illness%' then 'EP-COLONIAL-CRITICAL'
+                when [Provider Name] like '%colonial life%' then 'EP-COLONIAL-CRITICAL'
+                when [plan] like '%Colonial Life Group Critical Care%'  then 'EP-COLONIAL-CRITICAL'
+                when [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
+                when [plan] like '%Colonial Accident Plan%' or [plan] like '%Colonial Life Group Accident%' then 'EP-COLONIAL-ACCIDENT'
+                when [plan] like '%Colonial Accident%' then 'EP-COLONIAL-ACCIDENT'
+                when [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
+                when [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
+                when [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
+                when [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
+                when [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
+                when [Provider Name] like '%lincoln%' then 'EP-LINCOLN-LIFE'
+                END IS NOT NULL
+            '''  , con=conn, params=client
+        )
 
     df = pd.DataFrame(sql)
-    print(df, "all table testing")
 
     df = df.sort_values(by=['fullName', 'Provider Name'])
     
@@ -127,7 +125,7 @@ def format_Detail(writer,detail, client, clientID):
     worksheet.set_column('A:A', 35)
     worksheet.set_column('E:E', 12, money_fmt)
 
-    chEnd = {1:'A', 2:'B', 3:'C', 4:'D',5:'E',6:'F',7:'G',8:'H',9:'I',10:'J', 11:'K',12:'L',13:'M',14:'N'}
+    chEnd = { 1:'A', 2:'B', 3:'C', 4:'D',5:'E',6:'F',7:'G',8:'H',9:'I',10:'J', 11:'K',12:'L',13:'M',14:'N' }
     for cw in detail:
         column_width = max(detail[cw].astype(str).map(len).max(), len(cw))
         col_idx = detail.columns.get_loc(cw)
@@ -135,14 +133,16 @@ def format_Detail(writer,detail, client, clientID):
 
     tablerange = 'A8:'+ str(chEnd[detail.shape[1]])+ str(detail[detail.columns[0]].count()+9)
     column_settings = [{'header':column} if column =="fullName"   else {'header':column,  'total_function':'sum'} for column in detail.columns]
-    worksheet.add_table(tablerange, { 'columns':column_settings,
-                                   'autofilter': True,
-                                   'total_row': True,
-                                   'style': 'Table Style Medium 4'})
+    worksheet.add_table(tablerange, { 
+        'columns':column_settings,
+        'autofilter': True,
+        'total_row': True,
+        'style': 'Table Style Medium 4'
+    })
     worksheet.insert_image('A1', 'C:\\Users\\andrea.rodriguez\\intacctlogo\\LBMC-EmpPartners-logo.png')
     
-    bold   = workbook.add_format({'bold': True,'font':15})
-    green  = workbook.add_format({'bold': True,'font':15, 'color':'7da53d'})
+    bold = workbook.add_format({'bold': True,'font':15})
+    green = workbook.add_format({'bold': True,'font':15, 'color':'7da53d'})
     worksheet.write('D2', client,bold)
     worksheet.write('D3', "Monthly Client Summary",green)
     worksheet.write('D4', "September 2023",green)
@@ -165,10 +165,12 @@ def format_Summary(writer,sumByPlan, client, clientID):
 
     tablerange = 'A8:'+ str(chEnd[sumByPlan.shape[1]])+ str(sumByPlan[sumByPlan.columns[0]].count()+9)
     column_settings = [{'header':column} if column =="Description"   else {'header':column,  'total_function':'sum'} for column in sumByPlan.columns]
-    worksheet.add_table(tablerange, { 'columns':column_settings, 
-                                   'autofilter': True,
-                                   'total_row': True,
-                                   'style': 'Table Style Medium 4'})
+    worksheet.add_table(tablerange, { 
+        'columns':column_settings, 
+        'autofilter': True,
+        'total_row': True,
+        'style': 'Table Style Medium 4'
+    })
     worksheet.insert_image('A1', 'C:\\Users\\andrea.rodriguez\\intacctlogo\\LBMC-EmpPartners-logo.png')
     
     bold   = workbook.add_format({'bold': True,'font':15})
@@ -194,10 +196,12 @@ def format_SummaryDetail(writer,piv, client, clientID):
     tablerange = 'A8:'+ str(chEnd[piv.shape[1]])+ str(piv[piv.columns[0]].count()+9)
       
     column_settings = [{'header':column} if column =="EE"   else {'header':column,  'total_function':'sum'} for column in piv.columns]
-    worksheet.add_table(tablerange, { 'columns':column_settings,
-                                   'autofilter': True,
-                                   'total_row': True,
-                                   'style': 'Table Style Medium 4'})
+    worksheet.add_table(tablerange, { 
+        'columns':column_settings,
+        'autofilter': True,
+        'total_row': True,
+        'style': 'Table Style Medium 4'
+    })
     worksheet.insert_image('A1', 'C:\\Users\\andrea.rodriguez\\intacctlogo\\LBMC-EmpPartners-logo.png')
     
     bold   = workbook.add_format({'bold': True,'font':15})
