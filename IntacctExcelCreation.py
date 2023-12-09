@@ -31,7 +31,7 @@ def establish_connection():
 def get_clients(cursor):
     sql = """
         set nocount on 
-        select distinct clientcode from dbo.[BILLING_STEP_3]
+        select distinct ClientCode from dbo.[BILLING_STEP_3]
         order by 1 desc
     """
     cursor.execute(sql)
@@ -142,11 +142,11 @@ def format_Detail(writer, detail, client, clientID):
         col_idx = detail.columns.get_loc(cw)
         writer.sheets['Detail'].set_column(col_idx, col_idx, column_width+5)
 
-    tablerange = 'A8:' + str(chEnd[detail.shape[1]]) + str(detail[detail.columns[0]].count() + 9)
+    tableRange = 'A8:' + str(chEnd[detail.shape[1]]) + str(detail[detail.columns[0]].count() + 9)
     column_settings = [{'header': column} if column == "fullName" else {'header': column, 'total_function': 'sum'}
                        for column in detail.columns]
     
-    worksheet.add_table(tablerange, { 
+    worksheet.add_table(tableRange, { 
         'columns': column_settings,
         'autofilter': True,
         'total_row': True,
@@ -168,10 +168,10 @@ def format_Detail(writer, detail, client, clientID):
 def format_Summary(writer, sumByPlan, client, clientID): 
     workbook = writer.book
     worksheet = writer.sheets['Summary'] 
-    moneyfmt = workbook.add_format({'num_format': 44, 'align': 'right'})
-    nmbfmt = workbook.add_format({'num_format': '#,##0', 'align': 'right'}) 
-    worksheet.set_column('B:B', 12, moneyfmt)
-    worksheet.set_column('C:C', 12, nmbfmt)
+    money_fmt = workbook.add_format({'num_format': 44, 'align': 'right'})
+    nmb_fmt = workbook.add_format({'num_format': '#,##0', 'align': 'right'}) 
+    worksheet.set_column('B:B', 12, money_fmt)
+    worksheet.set_column('C:C', 12, nmb_fmt)
 
     chEnd = {
         1: 'A', 2: 'B', 3: 'C', 4: 'D',5: 'E', 6: 'F', 7: 'G', 
@@ -183,12 +183,12 @@ def format_Summary(writer, sumByPlan, client, clientID):
         col_idx = sumByPlan.columns.get_loc(cw)
         writer.sheets['Summary'].set_column(col_idx, col_idx, column_width + 5)
 
-    tablerange = 'A8:' + str(chEnd[sumByPlan.shape[1]]) + str(sumByPlan[sumByPlan.columns[0]].count() + 9)
+    tableRange = 'A8:' + str(chEnd[sumByPlan.shape[1]]) + str(sumByPlan[sumByPlan.columns[0]].count() + 9)
 
     column_settings = [{'header': column} if column == "Description" else {'header': column, 'total_function': 'sum'}
                        for column in sumByPlan.columns]
     
-    worksheet.add_table(tablerange, { 
+    worksheet.add_table(tableRange, { 
         'columns':column_settings, 
         'autofilter': True,
         'total_row': True,
@@ -211,9 +211,9 @@ def format_Summary(writer, sumByPlan, client, clientID):
 def format_SummaryDetail(writer,piv, client, clientID): 
     workbook = writer.book
     worksheet = writer.sheets['Summary Detail'] 
-    moneyfmt = workbook.add_format({'num_format': '$ #,##0.00', 'align': 'right'})
+    money_fmt = workbook.add_format({'num_format': '$ #,##0.00', 'align': 'right'})
     nmbfmt = workbook.add_format({'num_format': '#,##0', 'align': 'right'}) 
-    worksheet.set_column('B:J', 12, moneyfmt) 
+    worksheet.set_column('B:J', 12, money_fmt) 
 
     chEnd = {
         1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J', 
@@ -226,12 +226,12 @@ def format_SummaryDetail(writer,piv, client, clientID):
         col_idx = piv.columns.get_loc(cw)
         writer.sheets['Summary Detail'].set_column(col_idx, col_idx, column_width + 5)
         
-    tablerange = 'A8:' + str(chEnd[piv.shape[1]]) + str(piv[piv.columns[0]].count() + 9)
+    tableRange = 'A8:' + str(chEnd[piv.shape[1]]) + str(piv[piv.columns[0]].count() + 9)
       
     column_settings = [{'header': column} if column == "EE" else {'header': column, 'total_function': 'sum'}
                        for column in piv.columns]
     
-    worksheet.add_table(tablerange, { 
+    worksheet.add_table(tableRange, { 
         'columns':column_settings,
         'autofilter': True,
         'total_row': True,
