@@ -101,8 +101,14 @@ def get_session():
     #print(response.text)
     root = ET.fromstring(response.content)
 
+    session = None  # Provide a default value
+
     for child in root.iter('sessionid'):
-        session = (child.text)
+        session = child.text
+
+    if session is None:
+        raise Exception("Session not found in the XML response")
+
     return session
 
 def get_clients(cursor):
@@ -119,68 +125,21 @@ def get_detail(clientCode, cursor):
     sql = """
     SET NOCOUNT ON
     SELECT 
-        premium, 
+        [Premium], 
         lastname + ', ' + firstname as fullName,
-        period,
-        clientName, 
-        ClientCode, 
-        Customer_ID, 
-        project_ID,
-        case when [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
-            when [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
-            when [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
-            when [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
-            when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            when [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
-            when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            when [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-            when [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
-            when [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
-            when [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
-            when [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
-            when [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
-            when [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
-            when [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
-        END itemid
+        [Period],
+        [ClientName], 
+        [ClientCode], 
+        [Customer_ID], 
+        [project_ID]
     from dbo.[BILLING_STEP_3]
-    where clientcode = ? and 
-        case when [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
-            when [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
-            when [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
-            WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%LOAD PLAN%' THEN 'EP-BCBS-HEALTH'
-            WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%VISION%' THEN 'EP-BCBS-VISION'
-            WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%DENTAL%' THEN 'EP-BCBS-DENTAL'
-            when [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
-            WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%VISION%' THEN 'EP-CIGNA-VISION'
-            WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%OAP%' THEN 'EP-CIGNA-HEALTH'
-            when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            when [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
-            when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            when [Description] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            WHEN [Description] LIKE '%cigna%health%' then 'EP-CIGNA-HEALTH'
-            WHEN [Description] LIKE 'Cigna Heath%' THEN 'EP-CIGNA-HEALTH'
-            when [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-            when [plan] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-            when [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
-            when [plan] like '%Colonial Critical Illness%' then 'EP-COLONIAL-CRITICAL'
-            when [Provider Name] like '%colonial life%' and [Description] like '%critical illness%' then 'EP-COLONIAL-CRITICAL'
-            when [plan] like '%Colonial Life Group Critical Care%'  then 'EP-COLONIAL-CRITICAL'
-            when [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
-            when [plan] like '%Colonial Accident Plan%' or [plan] like '%Colonial Life Group Accident%' then 'EP-COLONIAL-ACCIDENT'
-            when [plan] like '%Colonial Accident%' then 'EP-COLONIAL-ACCIDENT'
-            when [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
-            when [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
-            when [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
-            when [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
-            when [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
-            when [Provider Name] like '%lincoln%' and [Description] like '%Supplemental Life Insurance and AD&D%' then 'EP-LINCOLN-LIFE'
-            END IS NOT NULL
+    where ClientCode = ?
     """
     cursor.execute(sql, clientCode)
     row = cursor.fetchall() 
     return  row 
  
-def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, customer, clientID):
+def post_data(conn, cursor, sessionId, projectID, customerID, amt, customer, clientID):
     newdoc = Document();
     request = newdoc.createElement('request')
     newdoc.appendChild(request)
@@ -237,7 +196,6 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, c
     attachmentX.appendChild(attachmentTypeX).appendChild(newdoc.createTextNode('xlsx'))
 
     file_path = os.path.join("Andreas", f'{customer} {clientID} - {INVOICE_SUB_STR}')
-    print(file_path, "file path testing")
     if (file_path):
         with open(file_path, 'rb') as file:
             data = file.read()
@@ -258,31 +216,25 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, c
         """
         cursor.execute(query, (xmlData, customerID, projectID, amt))
         conn.commit()
-        # print("Inserting, ", projectID)
+        print("Inserting, ", projectID)
     except Exception as e:
         print(f"Error inserting into BillingLog: {e}")
 
 def main():
-    todaysDate = date.today()
-    createDate = todaysDate
-    cdMonth = todaysDate.month
-    cdYear = todaysDate.year
-    cdDay = todaysDate.day 
-
     conn = establish_connection()
     cursor = conn.cursor()
 
-    sessionId = get_session() 
+    session_id = get_session()
 
     clients = get_clients(cursor)
 
-    for clientCode in clients:
-        invoiceItems = get_detail(clientCode, cursor)
-        projectID = invoiceItems[0][6]
-        customerID = invoiceItems[0][5]
-        customer = invoiceItems[0][3]
-        clientID = invoiceItems[0][4]
-        post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, customer, clientID)
+    for client_code in clients:
+        invoice_items = get_detail(client_code, cursor)
+        project_id = invoice_items[0][6]
+        customer_id = invoice_items[0][5]
+        customer = invoice_items[0][3]
+        client_id = invoice_items[0][4]
+        post_data(conn, cursor, session_id, project_id, customer_id, amt, customer, client_id)
 
 if __name__ == "__main__":
     main()

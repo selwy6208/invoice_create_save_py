@@ -56,40 +56,7 @@ def working(conn, client):
             , [Premium]
             , [Coverage]
         FROM dbo.[BILLING_STEP_3]
-        where ClientCode = ? and
-            case 
-                when [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
-                when [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
-                when [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
-                WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%LOAD PLAN%' THEN 'EP-BCBS-HEALTH'
-                WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%VISION%' THEN 'EP-BCBS-VISION'
-                WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%DENTAL%' THEN 'EP-BCBS-DENTAL'
-                when [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
-                WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%VISION%' THEN 'EP-CIGNA-VISION'
-		        WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%OAP%' THEN 'EP-CIGNA-HEALTH'
-                WHEN [Provider Name] LIKE '%CIGNA%' THEN 'EP-CIGNA-VISION'
-                when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-                when [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
-                when [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-                when [Description] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-                WHEN [Description] LIKE '%cigna%health%' then 'EP-CIGNA-HEALTH'
-                WHEN [Description] LIKE 'Cigna Heath%' THEN 'EP-CIGNA-HEALTH'
-                when [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-                when [plan] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-                when [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
-                when [plan] like '%Colonial Critical Illness%' then 'EP-COLONIAL-CRITICAL'
-                when [Provider Name] like '%colonial life%' and [Description] like '%critical illness%' then 'EP-COLONIAL-CRITICAL'
-                when [plan] like '%Colonial Life Group Critical Care%'  then 'EP-COLONIAL-CRITICAL'
-                when [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
-                when [plan] like '%Colonial Accident Plan%' or [plan] like '%Colonial Life Group Accident%' then 'EP-COLONIAL-ACCIDENT'
-                when [plan] like '%Colonial Accident%' then 'EP-COLONIAL-ACCIDENT'
-                when [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
-                when [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
-                when [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
-                when [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
-                when [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
-                when [Provider Name] like '%lincoln%' and [Description] like '%Supplemental Life Insurance and AD&D%' then 'EP-LINCOLN-LIFE'
-                END IS NOT NULL
+        where ClientCode = ?
         """  , con=conn, params=client
     )
 
