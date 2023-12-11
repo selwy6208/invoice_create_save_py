@@ -99,8 +99,14 @@ def get_session():
     #print(response.text)
     root = ET.fromstring(response.content)
 
+    session = None  # Provide a default value
+
     for child in root.iter('sessionid'):
-        session = (child.text)
+        session = child.text
+
+    if session is None:
+        raise Exception("Session not found in the XML response")
+
     return session
 
 def get_clients(cursor):
@@ -124,77 +130,15 @@ def get_detail(clientCode, cursor):
 	, project_ID
     , ClientName
 	, ClientCode 
-    ,case WHEN [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
-        WHEN [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
-        WHEN [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
-        WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%LOAD PLAN%' THEN 'EP-BCBS-HEALTH'
-		WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%VISION%' THEN 'EP-BCBS-VISION'
-		WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%DENTAL%' THEN 'EP-BCBS-DENTAL'
-        WHEN [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
-        WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%VISION%' THEN 'EP-CIGNA-VISION'
-		WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%OAP%' THEN 'EP-CIGNA-HEALTH'
-        WHEN [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-        WHEN [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
-        WHEN [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-        WHEN [Description] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-		WHEN [Description] LIKE '%cigna%health%' then 'EP-CIGNA-HEALTH'
-		WHEN [Description] LIKE 'Cigna Heath%' THEN 'EP-CIGNA-HEALTH'
-        WHEN [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-		WHEN [plan] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-        WHEN [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
-		WHEN [plan] like '%Colonial Critical Illness%' then 'EP-COLONIAL-CRITICAL'
-        when [Provider Name] like '%colonial life%' and [Description] like '%critical illness%' then 'EP-COLONIAL-CRITICAL'
-		WHEN [plan] like '%Colonial Life Group Critical Care%'  then 'EP-COLONIAL-CRITICAL'
-        WHEN [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
-		WHEN [plan] like '%Colonial Accident Plan%' or [plan] like '%Colonial Life Group Accident%' then 'EP-COLONIAL-ACCIDENT'
-		WHEN [plan] like '%Colonial Accident%' then 'EP-COLONIAL-ACCIDENT'
-        WHEN [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
-        WHEN [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
-        WHEN [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
-        WHEN [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
-        WHEN [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
-        WHEN [Provider Name] like '%lincoln%' and [Description] like '%Supplemental Life Insurance and AD&D%' then 'EP-LINCOLN-LIFE'
-        END  itemid
+    , itemid
     from dbo.[BILLING_STEP_3]
-    where clientcode = ? and
-        case WHEN [plan] like '%bcbs%dental%' then 'EP-BCBS-DENTAL'
-            WHEN [plan] like '%bcbs%(%)%' then 'EP-BCBS-HEALTH'
-            WHEN [plan] like '%bcbs%vision%' then 'EP-BCBS-VISION'
-            WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%LOAD PLAN%' THEN 'EP-BCBS-HEALTH'
-            WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%VISION%' THEN 'EP-BCBS-VISION'
-            WHEN [Provider Name] LIKE '%BLUE CROSS BLUE%' AND [Description] LIKE '%DENTAL%' THEN 'EP-BCBS-DENTAL'
-            WHEN [plan] like '%cigna%p%/%' then 'EP-CIGNA-HEALTH'
-            WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%VISION%' THEN 'EP-CIGNA-VISION'
-            WHEN [Provider Name] LIKE '%CIGNA%' AND [Description] LIKE '%OAP%' THEN 'EP-CIGNA-HEALTH'
-            WHEN [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            WHEN [plan] like '%cigna%vision%' then 'EP-CIGNA-VISION'
-            WHEN [plan] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            when [Description] like '%cigna%dental%' then 'EP-CIGNA-DENTAL'
-            WHEN [Description] LIKE '%cigna%health%' then 'EP-CIGNA-HEALTH'
-            WHEN [Description] LIKE 'Cigna Heath%' THEN 'EP-CIGNA-HEALTH'
-            WHEN [Provider Name] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-            WHEN [plan] like '%symet%' then  'EP-SYMETRA-INDEMNITY'
-            WHEN [Provider Name] like '%colonial%' and [plan] like '%critical%' then 'EP-COLONIAL-CRITICAL'
-            WHEN [plan] like '%Colonial Critical Illness%' then 'EP-COLONIAL-CRITICAL'
-            WHEN [Provider Name] like '%colonial life%' and [Description] like '%critical illness%' then 'EP-COLONIAL-CRITICAL'
-            WHEN [plan] like '%Colonial Life Group Critical Care%'  then 'EP-COLONIAL-CRITICAL'
-            WHEN [Provider Name] like '%colonial%' and [plan] like '%accid%' then 'EP-COLONIAL-ACCIDENT'
-            WHEN [plan] like '%Colonial Accident Plan%' or [plan] like '%Colonial Life Group Accident%' then 'EP-COLONIAL-ACCIDENT'
-            WHEN [plan] like '%Colonial Accident%' then 'EP-COLONIAL-ACCIDENT'
-            WHEN [plan] like '%STANDARD LIFE%' AND [Provider Name] LIKE '%LINCOLN%' then 'EP-LINCOLN-STD'
-            WHEN [Provider Name] like '%lincoln%' and [plan] like '%long term disability%' then 'EP-LINCOLN-LTD'
-            WHEN [Provider Name] like '%lincoln%' and [plan] like '%vol%short%term disability%' then 'EP-LINCOLN-STD-VOL'
-            WHEN [Provider Name] like '%lincoln%' and [plan] like '%short%term disability%' then 'EP-LINCOLN-STD'
-            WHEN [Provider Name] like '%lincoln%' and [plan] like '%supplemental life ins%' then 'EP-LINCOLN-LIFE'
-            WHEN [Provider Name] like '%lincoln%' and [Description] like '%Supplemental Life Insurance and AD&D%' then 'EP-LINCOLN-LIFE'
-            END IS NOT NULL
+    where clientcode = ?
     """
     cursor.execute(sql, clientCode)
     row = cursor.fetchall() 
     return  row 
  
 def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, invoiceItems,customer,clientID,contacts):
-    print(projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, invoiceItems,customer,clientID,contacts, "all data test")
     newdoc = Document();
     request = newdoc.createElement('request')
     newdoc.appendChild(request)
@@ -315,11 +259,11 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, c
         cfvX = newdoc.createElement('customfieldvalue')
         customFieldX.appendChild(cfvX).appendChild(newdoc.createTextNode(a[1]))
  
-    print(request.toprettyxml()) 
+    # print(request.toprettyxml()) 
     result = XMLRequestClient.post(request) 
     xmlData = result.toprettyxml() 
-    print(xmlData)
-    print('Done') 
+    # print(xmlData)
+    # print('Done') 
 
     try:
         cursor.execute("""
@@ -333,7 +277,7 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, c
     
     if """<status>failure</status>""" in xmlData and contacts == 0:
       print("Failure, trying again without project contacts")
-    post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, invoiceItems, customer, clientID, 1)
+      post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, invoiceItems, customer, clientID, 1)
       
     if """<status>failure</status>""" in xmlData and contacts == 1:
       print("Failure, moving on. Something else is failing.") 
