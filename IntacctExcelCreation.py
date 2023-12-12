@@ -2,17 +2,7 @@ import os
 import pyodbc
 import sqlalchemy as sa
 import pandas as pd 
-
-# Define constants
-DATABASE_DRIVER = 'ODBC Driver 17 for SQL Server'
-INVOICE_SUB_STR = 'Benefits Invoice - September 2023.xlsx'
-YEAR_MONTH = 'September 2023'
-DB_CONFIG = {
-    'server': 'lbmcbenefits.database.windows.net',
-    'database': 'LBMCbenefits',
-    'username': 'LBMC@lbmcbenefits',
-    'password': '3fP3Z4AE69tgyOBoa3sF',
-}
+from constants import *
 
 def establish_connection():
     connection_string = (
@@ -93,7 +83,6 @@ def working(conn, client):
         detail.to_excel(writer, 'Detail', index=False, startrow=7)
         format_Detail(writer=writer, detail=detail, client=client, clientID=clientID)
 
-    # Close the database connection
     # conn.close()
 
 def format_Detail(writer, detail, client, clientID): 

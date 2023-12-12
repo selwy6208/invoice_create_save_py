@@ -14,26 +14,7 @@ import urllib.request
 from xml.dom.minidom import parse
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta
-
-# Define constants
-senderId = "LBMC"
-senderPassword = "2t2fPXW!!&lt;9y"
-amt = 0
-companyId = "LBMC"
-userId = "DWReader"
-userPassword = "$KgWYS168TB"
-    
-TIMEOUT = 90
-ENDPOINT_URL = "https://api.intacct.com/ia/xml/xmlgw.phtml"
-DATABASE_DRIVER = 'ODBC Driver 17 for SQL Server'
-INVOICE_SUB_STR = 'Benefits Invoice - September 2023.xlsx'
-YEAR_MONTH = 'September 2023'
-DB_CONFIG = {
-    'server': 'lbmcbenefits.database.windows.net',
-    'database': 'LBMCbenefits',
-    'username': 'LBMC@lbmcbenefits',
-    'password': '3fP3Z4AE69tgyOBoa3sF',
-}
+from constants import *
 
 class XMLRequestClient:
     @staticmethod
@@ -73,8 +54,8 @@ def get_session():
     payload = f"""<?xml version="1.0" encoding="UTF-8"?>
         <request>
           <control>
-            <senderid>{senderId}</senderid>
-            <password>{senderPassword}</password>
+            <senderid>{SENDER_ID}</senderid>
+            <password>{SNEDER_PASSWORD}</password>
             <controlid>{controlId}</controlid>
             <uniqueid>false</uniqueid>
             <dtdversion>3.0</dtdversion>
@@ -83,9 +64,9 @@ def get_session():
           <operation>
             <authentication>
               <login>
-                <userid>{userId}</userid>
-                <companyid>{companyId}</companyid>
-                <password>{userPassword}</password>
+                <userid>{USER_ID}</userid>
+                <companyid>{COMPANY_ID}</companyid>
+                <password>{USER_PASSWORD}</password>
                 <locationid>101</locationid>
               </login>
             </authentication>
@@ -146,7 +127,7 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, customer, cli
     control = newdoc.createElement('control')
     request.appendChild(control)
     senderid = newdoc.createElement('senderid')
-    control.appendChild(senderid).appendChild(newdoc.createTextNode(senderId))
+    control.appendChild(senderid).appendChild(newdoc.createTextNode(SENDER_ID))
     senderpassword = newdoc.createElement('password')
     control.appendChild(senderpassword).appendChild(newdoc.createTextNode("2t2fPXW!!<9y"))
     controlid = newdoc.createElement('controlid')
@@ -234,7 +215,7 @@ def main():
         customer_id = invoice_items[0][5]
         customer = invoice_items[0][3]
         client_id = invoice_items[0][4]
-        post_data(conn, cursor, session_id, project_id, customer_id, amt, customer, client_id)
+        post_data(conn, cursor, session_id, project_id, customer_id, AMT, customer, client_id)
 
 if __name__ == "__main__":
     main()

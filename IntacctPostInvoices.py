@@ -3,7 +3,6 @@ import os
 import time
 import pyodbc 
 import requests
-import datetime
 from time import sleep 
 from turtle import update
 import urllib.request
@@ -13,25 +12,7 @@ from ssl import create_default_context
 #from matplotlib import projections
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta
-
-senderId = "LBMC"
-senderPassword = "2t2fPXW!!&lt;9y"
-amt = 0
-companyId = "LBMC"
-userId = "DWReader"
-userPassword = "$KgWYS168TB"
-    
-TIMEOUT = 90
-ENDPOINT_URL = "https://api.intacct.com/ia/xml/xmlgw.phtml"
-DATABASE_DRIVER = 'ODBC Driver 17 for SQL Server'
-INVOICE_SUB_STR = 'Benefits Invoice - September 2023.xlsx'
-YEAR_MONTH = 'September 2023'
-DB_CONFIG = {
-    'server': 'lbmcbenefits.database.windows.net',
-    'database': 'LBMCbenefits',
-    'username': 'LBMC@lbmcbenefits',
-    'password': '3fP3Z4AE69tgyOBoa3sF',
-}
+from constants import *
 
 class XMLRequestClient:
     @staticmethod
@@ -71,8 +52,8 @@ def get_session():
     payload = f"""<?xml version="1.0" encoding="UTF-8"?>
         <request>
           <control>
-            <senderid>{senderId}</senderid>
-            <password>{senderPassword}</password>
+            <senderid>{SENDER_ID}</senderid>
+            <password>{SENDER_PASSWORD}</password>
             <controlid>{controlId}</controlid>
             <uniqueid>false</uniqueid>
             <dtdversion>3.0</dtdversion>
@@ -81,9 +62,9 @@ def get_session():
           <operation>
             <authentication>
               <login>
-                <userid>{userId}</userid>
-                <companyid>{companyId}</companyid>
-                <password>{userPassword}</password>
+                <userid>{USER_ID}</userid>
+                <companyid>{COMPANY_ID}</companyid>
+                <password>{USER_PASSWORD}</password>
                 <locationid>101</locationid>
               </login>
             </authentication>
@@ -145,7 +126,7 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, c
     control = newdoc.createElement('control')
     request.appendChild(control)
     senderid = newdoc.createElement('senderid')
-    control.appendChild(senderid).appendChild(newdoc.createTextNode(senderId))
+    control.appendChild(senderid).appendChild(newdoc.createTextNode(SENDER_ID))
     senderpassword = newdoc.createElement('password')
     control.appendChild(senderpassword).appendChild(newdoc.createTextNode("2t2fPXW!!<9y"))
     controlid = newdoc.createElement('controlid')
@@ -303,7 +284,7 @@ def main():
         customer = invoiceItems[0][5]
         clientID = invoiceItems[0][6]
 
-        post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, cdYear, cdMonth, cdDay, invoiceItems, customer,clientID, 0)
+        post_data(conn, cursor, sessionId, projectID, customerID, AMT, createDate, cdYear, cdMonth, cdDay, invoiceItems, customer,clientID, 0)
 
 if __name__ == "__main__":
     main()
