@@ -1,5 +1,4 @@
 from http import client
-import os
 import time
 import pyodbc 
 import requests
@@ -9,7 +8,6 @@ import urllib.request
 from xml.dom.minidom import Document 
 from xml.dom.minidom import parse
 from ssl import create_default_context
-#from matplotlib import projections
 import xml.etree.ElementTree as ET
 from datetime import date, timedelta
 from constants import *
@@ -263,7 +261,6 @@ def post_data(conn, cursor, sessionId, projectID, customerID, amt, createDate, c
     if """<status>failure</status>""" in xmlData and contacts == 1:
       print("Failure, moving on. Something else is failing.") 
     
-#Begin
 def main():
     todaysDate = date.today()
     createDate = todaysDate

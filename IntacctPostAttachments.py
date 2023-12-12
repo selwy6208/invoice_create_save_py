@@ -1,11 +1,8 @@
-# from http import client
 import os
 import time
 import pyodbc
 import base64
-import pathlib
 import requests
-import datetime
 from time import sleep 
 from turtle import update
 from ssl import create_default_context
